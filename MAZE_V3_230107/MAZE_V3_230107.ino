@@ -27,7 +27,7 @@ bool ReturnState = false;
 volatile char MovingDirection = 0;  // 0:북쪽(0시 방향) 1:동쪽(3시 방향) 2:남쪽(6시 방향) 3:서쪽(9시 방향)
 int Distance[8];
 
-int StackPointer = 0;
+int StackPointer = -1;
 int dirCheckStackPointer = -1;
 int checkPointStackPointer = -1;
 
@@ -37,6 +37,7 @@ uint8_t PosX = 7;
 uint8_t PosY = 7;
 uint8_t dirCheck[1000]; // 000 막다른길 100 왼쪽 010 앞 001 오른쪽
 int checkPoint[1000];  //갈림길 인덱스
+bool returned = false;
 
 #include "MAZE.h"
 #include <Wire.h>
@@ -778,29 +779,40 @@ void loop(void)
     if(KeyRun)////////////////////////////////////////////////////////////////
     {
       int availableDir = 0;
-      while(1) //종료 조건, 이후 수정해야함
+      Push(0);
+      CheckPointPush(StackPointer);
+            
+      while(returned == false || checkPointStackPointer > 0 || checkPoint[checkPointStackPointer] != 0) //종료 조건, 이후 수정해야함
       {
         for(int i=0; i<=7; i++) //벽과 로봇 사이 간격은 75mm가 이상적인 값임.
         Distance[i] = ReadDistance(i);
 
-        if(Distance[6] >= GAP || Distance[7] >= GAP) // No Walls on Left Side
-        {              
-          availableDir += 1;
-        }
-        if(Distance[1] >= GAP || Distance[0] >= GAP) //No walls on front side 
-        {            
-          availableDir += 2;
-        }        
-        if(Distance[3] >= GAP || Distance[2] >= GAP) //No walls on Right side
+        if(returned == false)
         {
-          availableDir += 4;
+          if(Distance[6] >= GAP || Distance[7] >= GAP) // No Walls on Left Side
+          {              
+            availableDir += 1;
+          }
+          if(Distance[1] >= GAP || Distance[0] >= GAP) //No walls on front side 
+          {            
+            availableDir += 2;
+          }        
+          if(Distance[3] >= GAP || Distance[2] >= GAP) //No walls on Right side
+          {
+            availableDir += 4;
+          }
+          DirCheckPush(availableDir);
+        }
+        else
+        {
+          availableDir = dirCheck[dirCheckStackPointer];
+          returned = false;
         }
         if(availableDir != 0 && availableDir != 1 && availableDir != 2 && availableDir != 4)
         {
           CheckPointPush(StackPointer);
         }
         
-        DirCheckPush(availableDir);
         if(dirCheck[dirCheckStackPointer] & 1)
         {
           dirCheck[dirCheckStackPointer] -= 1;
@@ -822,7 +834,7 @@ void loop(void)
           Push(MovingRF);
         }
         else if(dirCheck[dirCheckStackPointer] == 0) // Walls on 3 Sides except Behind
-        {   
+        {
           move(0,0);
           delay(10);
           int prevCheckPoint = CheckPointPop();           
@@ -841,7 +853,8 @@ void loop(void)
             }
             
           }
-        }       
+          returned = true;
+        }
         availableDir = 0;
       }
       move(0,0);
