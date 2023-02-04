@@ -404,7 +404,7 @@ void goOneBlock(int power)
       }
       if((analogRead(PF0) > 800 || analogRead(PF1) > 800) && !ReturnState)   event = 3;  //목적지      */
       Maze[PosX][PosY] = 1;
-      if(ReadDistance(0) < 80 || ReadDistance(1) < 80)     event = 1;  //앞쪽 벽에 너무 붙지않게 떨어져서 멈춤.
+      if(ReadDistance(0) < 90 || ReadDistance(1) < 00)     event = 1;  //앞쪽 벽에 너무 붙지않게 떨어져서 멈춤.
     }
   }
   else
@@ -451,7 +451,7 @@ void goOneBlock(int power)
   //    if(ReadDistance(6) >= 200 && ReadDistance(7)>= 200) event = 1;  //왼쪽이 뚫렸음.
       if((analogRead(PF0) > 800 || analogRead(PF1) > 800) && !ReturnState)   event = 3;  //목적지    */  
       Maze[PosX][PosY] = 1;
-      if(ReadDistance(0) < 80 || ReadDistance(1) < 80)     event = 1;  //앞쪽 벽에 너무 붙지않게 떨어져서 멈춤.
+      if(ReadDistance(0) < 90 || ReadDistance(1) < 90)     event = 1;  //앞쪽 벽에 너무 붙지않게 떨어져서 멈춤.
     }
   }
 
@@ -496,7 +496,7 @@ void goBackOneBlock(int power)
     {
       hp = RelativeHeading();
   
-      move((-1 * power) + hp * Kp, (-1 * power) - hp * Kp);
+      move((-1 * power) - hp * Kp, (-1 * power) + hp * Kp);
   
       //if(BumperL || ReadDistance(7) < 22) ShiftRight();
       //if(BumperR || ReadDistance(2) < 22) ShiftLeft();
@@ -532,7 +532,7 @@ void goBackOneBlock(int power)
         Maze[PosX][PosY] = 1;
       }*/
       //if((analogRead(PF0) > 800 || analogRead(PF1) > 800) && !ReturnState)   event = 3;  //목적지      
-      if(ReadDistance(0) < 80 || ReadDistance(1) < 80)     event = 1;  //앞쪽 벽에 너무 붙지않게 떨어져서 멈춤.
+      if(ReadDistance(0) < 80 || ReadDistance(1) < 80)     event = 1;  //뒤쪽 벽에 너무 붙지않게 떨어져서 멈춤.
     }
   }
   else
@@ -541,7 +541,7 @@ void goBackOneBlock(int power)
     {
       hp = RelativeHeading();
   
-      move((-1 * power) + hp * Kp, (-1 * power) - hp * Kp);
+      move((-1 * power) - hp * Kp, (-1 * power) + hp * Kp);
   
       if(BumperL || ReadDistance(7) < 22) ShiftRight();
       if(BumperR || ReadDistance(2) < 22) ShiftLeft();
@@ -781,8 +781,9 @@ void loop(void)
       int availableDir = 0;
       Push(0);
       CheckPointPush(StackPointer);
+      
             
-      while(returned == false || checkPointStackPointer > 0 || checkPoint[checkPointStackPointer] != 0) //종료 조건, 이후 수정해야함
+      while(returned == false || checkPointStackPointer > 0 || checkPoint[checkPointStackPointer] != 0 || StackPointer > 0 || (dirCheckStackPointer == 0 && dirCheck[dirCheckStackPointer] == 0)) //종료 조건, 이후 수정해야함
       {
         for(int i=0; i<=7; i++) //벽과 로봇 사이 간격은 75mm가 이상적인 값임.
         Distance[i] = ReadDistance(i);
